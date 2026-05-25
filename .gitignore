@@ -1,0 +1,4 @@
+face-recognition/myenv/
+__pycache__/
+*.pyc
+.env

@@ -1,0 +1,26 @@
+#High level face recognition & analysis libraby
+deepface==0.0.93
+
+#computer vision library for face detection andimage processing
+opencv-python-headless==4.9.0.80
+#image processing and transforming library
+pillow==10.4.0
+
+numpy==1.26.4
+
+#tensorflow based keras API - deep learning framework
+tf-keras==2.16.0
+#Modern python web framework for building APIs
+fastapi==0.111.0
+#(ASGI server)run asynchronous web server for fastapi
+uvicorn==0.29.0
+
+#environment variable management library 
+python-dotenv==1.0.1
+
+#python database toolkit and object-relational mapper
+sqlalchemy==2.0.30
+#connect python to postgresql database
+psycopg2-binary==2.9.9
+
+scipy==1.14.0
