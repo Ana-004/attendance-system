@@ -24,7 +24,7 @@ def extract_embedding(image_array: np.ndarray) -> np.ndarray | None: #-> return 
         rgb = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
 
         #coverts face into mathematical signature
-        result = DeepFace.represent(img_path = rgb, model_name =MODEL_NAME, detector_backend = DETECTOR,enforce_detection = True, align =True)
+        result = DeepFace.represent(img_path = rgb, model_name =MODEL_NAME, detector_backend = DETECTOR, enforce_detection = True, align =True)
 
         embedding = np.array(result[0]["embedding"], dtype = np.float32)
         return embedding
