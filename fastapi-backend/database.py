@@ -18,6 +18,7 @@ class Student(Base):
     course = Column(String)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     
+    #relationship() connect tables together
     sessions = relationship("AttendanceSession", back_populates="student")
     """
     realationship() :  create a link to another table
@@ -27,6 +28,8 @@ class Student(Base):
     """
 
 class AttendanceSession(Base):
+    """This stores every student entry and exit details and whether the session is counted towards attendance"""
+
     __tablename__ = "attendance_sessions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -40,6 +43,8 @@ class AttendanceSession(Base):
 
 
 class AttendanceRecord(Base):
+    """This stores the final attendance result"""
+
     __tablename__ = "attendance_records"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
