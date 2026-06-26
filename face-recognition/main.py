@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 import numpy as np
 import cv2
 
@@ -49,7 +49,7 @@ async def register_student(
         student_id = student_id,
         name = name,
         embedding = serialize_embedding(embedding),
-        registered_at = datetime.utcnow()
+        registered_at = datetime.now(timezone.utc)
     ) 
 
     db.merge(record) #Insert or update the embedding

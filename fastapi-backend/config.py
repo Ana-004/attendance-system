@@ -9,6 +9,8 @@ from pydantic_settings import BaseSettings   #used for combining configuration a
 class Settings(BaseSettings):
     DATABASE_URL: str 
     REDIS_URL: str 
+    FACE_RECOGNITION_URL: str
+    MIN_ATTENDANCE_MINUATES: int = 20
 
     class Config:
         env_file = ".env"
