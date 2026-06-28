@@ -48,7 +48,7 @@ def start_session(student_id:str) -> dict:
 
 def end_session(student_id: str) -> dict:
     '''
-    Called dwhen student scans at EXIT gate,
+    Called when student scans at EXIT gate,
     Calculates duration and returns whether attendance is counted.
     '''
     key = _entry_key(student_id)
@@ -78,3 +78,32 @@ def end_session(student_id: str) -> dict:
         "date" : session_data["date"]
 
     }
+
+def get_active_session(student_id : str) -> dict | None:
+    '''
+    Return active session data if exist else None
+    '''
+    key = _entry_key(student_id)
+
+    if not r.exist(key):
+        return None
+    
+    return json.loads(r.get(key))
+
+def get_all_active_session() -> dict:
+    '''
+    Return all current active sessions(for admin dashboard)
+    '''
+    keys = r.keys("session:entry:*")
+    sessions = []
+
+    for key in keys:
+        data = r.get(key)
+        if data:
+            s= json.loads(data)
+            entry_time = datetime.fromisoformat(s["entry_time"])
+            elapsed = int((datetime.now(timezone.utc) - entry_time).total_seconds / 60)
+            s["elapsed_min"] = elapsed >= settings.MIN_ATTENDANCE_MINUTES
+            sessions.append(s)
+            
+    return sessions
