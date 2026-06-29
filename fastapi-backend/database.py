@@ -22,7 +22,7 @@ class Student(Base):
     sessions = relationship("AttendanceSession", back_populates="student")
     """
     realationship() :  create a link to another table
-    back_populates : specify the attribute inthe related
+    back_populates : specify the attribute in the related
     db model that will have reverse relationship.
     update one side, the other side updates automatically
     """
@@ -39,7 +39,7 @@ class AttendanceSession(Base):
     is_counted = Column(Boolean, default=False) # True if >= 20 minutes
     date = Column(String, nullable=False)
 
-    student = relationship("Student", back_populates="sessions")
+    student = relationship("Student", back_populates="sessions") # reverse relationship with student table
 
 
 class AttendanceRecord(Base):
