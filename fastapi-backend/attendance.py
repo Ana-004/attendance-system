@@ -58,5 +58,41 @@ def get_student_attendance(db: Session, student_id: str) -> list[dict]:
         for r in records
     ]
 
+def get_attendance_summary(db : Session, student_id: str) ->dict:
+    '''
+    Return present count and percentage for a student
+    '''
 
+    records = db.query(AttendanceRecord).filter_by(student_id = student_id).all()
+    total = len(records)
+    present = sum(1 for r in records if r.status=="present")
+    percentage = round((present/total *100), 1) if total > 0 else 0.0
 
+    return {
+        "student_id" : student_id,
+        "total_days" : total,
+        "present_days" : present,
+        "percentage" : percentage
+    }
+
+async def push_to_cloud(session_result: dict):
+    '''
+    Push attendance summary to cloud sync-api
+    (send only the necessary information to a cloud server, *no biometrics)
+    '''
+
+    if not session_result.get("is_counted"):
+        return
+    
+    payload = {
+        "student_id" : session_result["student_id"],
+        "date" : session_result["date"],
+        "status" : "present",
+        "duration_min" : session_result["duration_min"]
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:  #creates an asynchronous HTTP client
+            await client.post(
+                f"{settings.}"
+            )
