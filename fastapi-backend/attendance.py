@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from database import AttendanceSession, AttendanceRecord, Student
 import httpx   # handles communication request to external APIs
-from config import Settings
+from config import setting
 
-def record_sessioon(db: Session, session_result: dict):
+def record_session(db: Session, session_result: dict):
     '''
     Persists a completed session to postgreSQL
     and create an attendance record if counted
@@ -94,7 +94,7 @@ async def push_to_cloud(session_result: dict):
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:  #creates an asynchronous HTTP client
             await client.post(
-                f"{Settings.SYNC_API_URL}/sync/attendance",
+                f"{setting.SYNC_API_URL}/sync/attendance",
                 json=payload
             )
     except Exception as e:
