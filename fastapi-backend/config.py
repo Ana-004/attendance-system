@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     REDIS_URL: str 
     FACE_RECOGNITION_URL: str
     MIN_ATTENDANCE_MINUATES: int = 20
+    SYNC_API_URL: str
 
     class Config:
         env_file = ".env"

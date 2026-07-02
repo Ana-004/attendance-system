@@ -11,11 +11,11 @@ def record_sessioon(db: Session, session_result: dict):
     '''
 
     session = AttendanceSession(
-        student_id = session_result["student_id"]
-        entry_time = datetime.fromisoformat(session_result["entry_time"])
-        exit_time = datetime.fromisoformat(session_result["exit_time"])
-        duration_min = session_result["duration_min"]
-        is_counted = session_result["is_counted"]
+        student_id = session_result["student_id"],
+        entry_time = datetime.fromisoformat(session_result["entry_time"]),
+        exit_time = datetime.fromisoformat(session_result["exit_time"]),
+        duration_min = session_result["duration_min"],
+        is_counted = session_result["is_counted"],
         date = session_result["date"]
     )
 
@@ -94,5 +94,8 @@ async def push_to_cloud(session_result: dict):
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:  #creates an asynchronous HTTP client
             await client.post(
-                f"{settings.}"
+                f"{Settings.SYNC_API_URL}/sync/attendance",
+                json=payload
             )
+    except Exception as e:
+        print(f"Cloud sync failed (non-critical) : {e}")
