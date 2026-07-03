@@ -102,4 +102,72 @@ async def exit_scan(
         except Exception as e:
             raise HTTPException(503, "Face Recognition service unavailable")
     
-        
+    if result.get("status") != "recognized":
+        return {"status" : "unknown", "message" : "Face not recognized"}
+    
+    student_id = result["student_id"]
+
+    #Check student exist in original DB
+    student = db.query(Student).filter_by(student_id = student_id).first()
+    if not student:
+        raise HTTPException(404, f"Student {student_id} not found in database")
+    
+    #end_session stops session timer in Redis
+    session_result = end_session(student_id)
+
+    if session_result["status"] == "no_active_session":
+        return {
+            "status" : "no_entry",
+            "message" : "No entry scan found for this student. Please use the entry gate first."
+        }
+    
+    #Save to PostgreSQL
+    record_session(db, session_result)
+
+    #Push to Cloud (No sensitive information)
+    background_tasks.add_task(push_to_cloud, session_result)
+
+    attendance_msg = (
+        f"Attendance marked!"
+        if session_result["is_counted"]
+        else f"Not counted - only {session_result["duration_min"]} min (need {setting.MIN_ATTENDANCE_MINUTES} min)"
+    )
+
+    return {
+        "status" : "session_ended", 
+        "student_id" : student_id,
+        "student_name" : student.name, 
+        "duration_minutes" : session_result["duration_min"],
+        "is_counted" : session_result["is_counted"],
+        "message" : attendance_msg
+    }
+
+#Student Attendance Posrtal API
+@app.get("/attendance/{student_id}")
+def student_attendance(student_id: str, db: Session = Depends(get_db)):
+    '''
+    Returns full attendance history for a student
+    '''
+
+    student = db.query(Student).filter_by(student_id = student_id).first()
+    if not student:
+        raise HTTPException(404, "Student Not found in database")
+    
+    records = get_student_attendance(db, student_id)
+    summary = get_attendance_summary(db, student_id)
+
+    return {
+        "student" : {"id" : student.student_id, "name" : student.name},
+        "records" : records,
+        "summary" : summary
+    }
+
+#Active Sessions (for admin)
+@app.get("/sessions/active")
+def active_sessions():
+    '''
+    Return all students with active session (entry scanned but not exit)
+    '''
+    return {
+        "active_session" : get_all_active_session()
+    }

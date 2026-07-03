@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str 
     REDIS_URL: str 
     FACE_RECOGNITION_URL: str
-    MIN_ATTENDANCE_MINUATES: int = 20
+    MIN_ATTENDANCE_MINUTES: int = 20
     SYNC_API_URL: str
 
     class Config:
