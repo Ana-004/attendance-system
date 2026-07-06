@@ -171,3 +171,50 @@ def active_sessions():
     return {
         "active_session" : get_all_active_session()
     }
+
+#Register Student
+@app.post("/student/register")
+async def register_student(
+    student_id :str,
+    name : str,
+    email: str,
+    course : str,
+    image : UploadFile = File(...),
+    db = Session = Depends(get_db)
+):
+    '''
+    Register a new student, saves to local DB and 
+    sends face image to face-recognition service
+    '''
+    #register face embedding
+    image_bytes = await image.read()
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        try:
+            resp = await client.post(
+                f"{setting.FACE_RECOGNITION_URL}/register",
+                params= {"student_id" : student_id, "name": name},
+                files = {"image": (image.filename, image_bytes, image.content_type)}
+            )
+            face_result = resp.json()
+        except Exception:
+            raise HTTPException(503, "Face regonition service unavailable")
+    
+    if "error" in face_result:
+        raise HTTPException(422, face_result["error"])
+    
+    #Save student to DB
+    existing = db.query(Student).filter_by(student_id = student_id).first()
+    if not existing:
+        student = Student(
+            student_id = student_id,
+            name = name,
+            email = email,
+            course = course
+        )
+        db.add(student)
+        db.commit()
+
+    return {
+        "message" : f"Student {name} registered successfully",
+        "student_id" : student_id
+    }
