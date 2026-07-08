@@ -3,9 +3,9 @@ from sqlalchemy import(
 )
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from datetime import datetime, timezone
-from config import settings
+from config import setting
 
-engine = create_engine(settings.DATABASE_URL)   #Create a connection between python and the database
+engine = create_engine(setting.DATABASE_URL)   #Create a connection between python and the database
 SessionLocal = sessionmaker(bind=engine)    #facilitate interaction with the database (creating sessions)
 Base = declarative_base()  #Base Class for all database models(allows python classes to become database tables)
 

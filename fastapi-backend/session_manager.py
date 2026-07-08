@@ -3,9 +3,9 @@
 import redis
 import json
 from datetime import datetime, timezone
-from config import settings
+from config import setting
 
-r = redis.from_url(settings.REDIS_URL, decode_responses=True)  #Creates a redis connection object
+r = redis.from_url(setting.REDIS_URL, decode_responses=True)  #Creates a redis connection object
 
 SESSION_TTL_SECONDS = 60 * 60 * 8  # auto-expire session after 8 hours (Working hours in a day)
 

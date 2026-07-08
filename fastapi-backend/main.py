@@ -130,7 +130,7 @@ async def exit_scan(
     attendance_msg = (
         f"Attendance marked!"
         if session_result["is_counted"]
-        else f"Not counted - only {session_result["duration_min"]} min (need {setting.MIN_ATTENDANCE_MINUTES} min)"
+        else f"Not counted - only {session_result['duration_min']} min (need {setting.MIN_ATTENDANCE_MINUTES} min)"
     )
 
     return {
@@ -175,12 +175,12 @@ def active_sessions():
 #Register Student
 @app.post("/student/register")
 async def register_student(
-    student_id :str,
-    name : str,
+    student_id: str,
+    name: str,
     email: str,
-    course : str,
-    image : UploadFile = File(...),
-    db = Session = Depends(get_db)
+    course: str,
+    image: UploadFile = File(...),
+    db: Session = Depends(get_db)
 ):
     '''
     Register a new student, saves to local DB and 
