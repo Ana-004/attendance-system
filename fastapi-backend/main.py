@@ -1,11 +1,17 @@
 '''
-Manage all API routes for fastapibackend
+Manage all API routes for fastapibackend.
+
+The flow end to end now works like this:
+Entry camera -> /scan/entry -> face-recognition -> Redis timer starts
+Exit camera  -> /scan/exit |-> face-recognition -> Redis timer stops
+                           |-> if ≥ 20 min → PostgreSQL attendance marked
+                           |-> cloud sync pushed in background
 '''
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
-import httpx
+import httpx #lets one API call another API
 
 #importing modules from different files 
 from config import setting
@@ -13,12 +19,14 @@ from database import get_db, init_db, Student
 from session_manager import start_session, end_session, get_active_session, get_all_active_session
 from attendance import record_session, get_student_attendance, get_attendance_summary, push_to_cloud
 
-
+#Creates web application.
 app = FastAPI(title="Attendance System Backend", description = "Backend API for Attendance System", version="1.0.0")
 
 @app.on_event("startup")
 def startup_event():
     init_db()
+
+#****************Need to add a root address to web app*************************
 
 #Health
 @app.get("/health")
@@ -28,9 +36,9 @@ def health_check():
 #Enrty Scan
 @app.post("/scan/entry")
 async def entry_scan(
-    image : UploadFile = File(...),
-    background_tasks : BackgroundTasks = BackgroundTasks(),
-    db : Session = Depends(get_db)
+    image : UploadFile = File(...),  #Represents an uploaded file
+    background_tasks : BackgroundTasks = BackgroundTasks(),   #Runs tasks after sending the response
+    db : Session = Depends(get_db)   #Dependency Injection: FastAPI handles database connection
 ):
     '''
     Called by entry scanner:
@@ -42,7 +50,7 @@ async def entry_scan(
     image_bytes = await image.read()
 
     #call face-regonition service 
-    async with httpx.AsyncClient(timeout=5.0) as client:
+    async with httpx.AsyncClient(timeout=5.0) as client:          #Creates HTTP client
         try:
             resp = await client.post(
                 f"{setting.FACE_RECOGNITION_URL}/recognize",
