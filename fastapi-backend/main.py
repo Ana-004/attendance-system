@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 import httpx #lets one API call another API
 
 #importing modules from different files 
-from config import setting
+from config import settings
 from database import get_db, init_db, Student
 from session_manager import start_session, end_session, get_active_session, get_all_active_session
 from attendance import record_session, get_student_attendance, get_attendance_summary, push_to_cloud
@@ -53,7 +53,7 @@ async def entry_scan(
     async with httpx.AsyncClient(timeout=5.0) as client:          #Creates HTTP client
         try:
             resp = await client.post(
-                f"{setting.FACE_RECOGNITION_URL}/recognize",
+                f"{settings.FACE_RECOGNITION_URL}/recognize",
                 files = {"image" : (image.filename, image_bytes, image.content_type)}
             )
             result = resp.json()
@@ -103,7 +103,7 @@ async def exit_scan(
     async with httpx.AsyncClient(timeout=5.0) as client:
         try:
             resp = await client.post(
-                f"{setting.FACE_RECOGNITION_URL}/recognize",
+                f"{settings.FACE_RECOGNITION_URL}/recognize",
                 files = {"image" : (image.filename, image_bytes, image.content_type)}
             )
             result = resp.json()
@@ -138,7 +138,7 @@ async def exit_scan(
     attendance_msg = (
         f"Attendance marked!"
         if session_result["is_counted"]
-        else f"Not counted - only {session_result['duration_min']} min (need {setting.MIN_ATTENDANCE_MINUTES} min)"
+        else f"Not counted - only {session_result['duration_min']} min (need {settings.MIN_ATTENDANCE_MINUTES} min)"
     )
 
     return {
@@ -199,7 +199,7 @@ async def register_student(
     async with httpx.AsyncClient(timeout=15.0) as client:
         try:
             resp = await client.post(
-                f"{setting.FACE_RECOGNITION_URL}/register",
+                f"{settings.FACE_RECOGNITION_URL}/register",
                 params= {"student_id" : student_id, "name": name},
                 files = {"image": (image.filename, image_bytes, image.content_type)}
             )
